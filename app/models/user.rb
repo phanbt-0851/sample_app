@@ -20,10 +20,11 @@ class User < ActiveRecord::Base
 	validates :email, format: { with: VALID_EMAIL_REGEX },
 					 presence: true, length: { maximum: 100 },
 					 	uniqueness: true
+	mount_uploader :avatar, AvatarUploader
 
 	has_secure_password
 	validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
-
+	validate :avatar_size 
 
 	# Returns the hash digest of the given string.
 	def User.digest(string)
@@ -120,4 +121,12 @@ class User < ActiveRecord::Base
 	      self.activation_digest = User.digest(activation_token)
 
 	    end
+
+	     # Validates the size of an uploaded picture.
+	    def avatar_size
+	      if avatar.size > 5.megabytes
+	        errors.add(:avatar, "should be less than 5MB")
+	      end
+	    end
+
 end
